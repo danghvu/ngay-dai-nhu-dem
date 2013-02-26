@@ -10,3 +10,7 @@ function idx(array $array, $key, $default = null) {
 function he($str) {
   return htmlentities($str, ENT_QUOTES, "UTF-8");
 }
+
+function linkify($str){
+    return ereg_replace("[[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/]","<a href=\"\\0\">\\0</a>", $string);
+}

@@ -189,7 +189,7 @@ if ($user_id) {
 ?>
                 <li>
                     <span class="title"><a href="<?php echo he($perml) ?>" target="_top"><?php echo $time; ?></a></span>
-                    <span class="message"><?php echo he($msg); ?></span>
+                    <span class="message"><?php echo linkify(he($msg)); ?></span>
                 </li>
 <?php
     }
