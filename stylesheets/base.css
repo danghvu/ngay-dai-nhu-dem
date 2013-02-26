@@ -270,13 +270,13 @@ header .tagline {
   font-weight: bold;
   font-size: 11px;
   line-height: 29px;
-  text-align: center;
+  padding-left: 10px;
 }
 
 #samples ul {
   /* background: url("../images/picture-sketch.png") 4px 8px; */
   background-repeat: repeat-y;
-  height: 161px;
+  /* height: 161px; */
   overflow: hidden;
   padding-top: 8px;
 }
@@ -307,7 +307,7 @@ header .tagline {
   left: 0;
   position: absolute;
   top: 0;
-  width: 32px;
+  /* width: 32px; */
 }
 
 #samples .inline ul {
