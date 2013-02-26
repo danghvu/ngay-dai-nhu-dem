@@ -173,8 +173,8 @@ while(tags.length)
 if ($user_id) {
 ?>
 
-    <section class="clearfix">
-        <div>
+    <section class="clearfix" id="samples">
+        <div class="list">
             <h3>Pending request</h3>
             
         <ul class="friends">
@@ -182,7 +182,7 @@ if ($user_id) {
     foreach ($req_obj as $req) {
         $msg = idx($req, 'message');
 
-        $time = strtotime(idx($req, 'created_time'));
+        $time = idx($req, 'created_time');
         $time = date("M d Y h:ia",$time);
 
         $perml = idx($req, 'permalink');
