@@ -12,8 +12,10 @@
 // Defined in 'AppInfo.php'
 require_once('AppInfo.php');
 
+$dev = true;
+
 // Enforce https on production
-if (substr(AppInfo::getUrl(), 0, 8) != 'https://' && $_SERVER['REMOTE_ADDR'] != '127.0.0.1') {
+if (!$dev && substr(AppInfo::getUrl(), 0, 8) != 'https://' && $_SERVER['REMOTE_ADDR'] != '127.0.0.1') {
     header('Location: https://'. $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
     exit();
 }
@@ -31,7 +33,10 @@ require_once('utils.php');
  *
  ****************************************************************************/
 
-require_once('sdk/src/facebook.php');
+if (!$dev)
+    require_once('sdk/src/facebook.php');
+else
+    require_once('../sdk/src/facebook.php');
 
 $facebook = new Facebook(array(
     'appId'  => AppInfo::appID(),
@@ -49,6 +54,16 @@ if ($user_id) {
         // If the call fails we check if we still have a user. The user will be
         // cleared if the error is because of an invalid accesstoken
         if (!$facebook->getUser()) {
+            // unset all cookie before relogin
+            if (isset($_SERVER['HTTP_COOKIE'])) {
+                $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
+                foreach($cookies as $cookie) {
+                    $parts = explode('=', $cookie);
+                    $name = trim($parts[0]);
+                    setcookie($name, '', time()-1000);
+                    setcookie($name, '', time()-1000, '/');
+                }
+            }
             header('Location: '. AppInfo::getUrl($_SERVER['REQUEST_URI']));
             exit();
         }
@@ -62,8 +77,26 @@ $app_name = idx($app_info, 'name', '');
 // Fetch the list of request
 
 $group_id = '188053074599163'; // load_paper_id
-$fql = "select created_time, permalink, message, comments FROM stream where source_id = $group_id and comments.count = 0 order by created_time desc LIMIT 100";
-$req_obj = $facebook->api(array('method' => 'fql.query','query' => $fql,));
+$fql = "select created_time, actor_id, permalink, message, comments FROM stream where source_id = $group_id and comments.count = 0 order by created_time desc LIMIT 100";
+$queries = '{
+    "group_stream":"SELECT created_time, actor_id, permalink, message, comments FROM stream WHERE source_id = '.$group_id.' AND comments.count = 0 order by created_time desc LIMIT 100",
+    "actor_info":"SELECT uid, name, pic_square FROM user WHERE uid IN (SELECT actor_id FROM #group_stream)",
+}';
+
+$rs_obj_multi = $facebook->api(
+    array( 
+        'method'=>'fql.multiquery',
+        'queries'=>$queries,
+    )
+);
+
+$req_obj = $rs_obj_multi[0]['fql_result_set'];
+$users = $rs_obj_multi[1]['fql_result_set'];
+$users_obj = array();
+
+foreach ($users as &$u) {
+    $users_obj[$u['uid']] = &$u;
+}
 
 ?>
 <!DOCTYPE html>
@@ -93,7 +126,7 @@ $req_obj = $facebook->api(array('method' => 'fql.query','query' => $fql,));
     <meta property="og:description" content="My first app" />
     <meta property="fb:app_id" content="<?php echo AppInfo::appID(); ?>" />
 
-    <script type="text/javascript" src="/javascript/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="javascript/jquery-1.7.1.min.js"></script>
 
 <script type="text/javascript">
 function logResponse(response) {
@@ -152,9 +185,8 @@ while(tags.length)
       <p id="picture" style="background-image: url(https://graph.facebook.com/<?php echo he($user_id); ?>/picture?type=normal)"></p>
 
       <div>
-        <h1>Welcome, <strong><?php echo he(idx($basic, 'name')); ?></strong></h1>
+        <h1>Chào <strong><?php echo he(idx($basic, 'name')); ?></strong></h1>
         <p class="tagline">
-          This is your app
           <a href="<?php echo he(idx($app_info, 'link'));?>" target="_top"><?php echo he($app_name); ?></a>
         </p>
       </div>
@@ -172,10 +204,19 @@ while(tags.length)
 <?php
 if ($user_id) {
 ?>
+    <section class="clearfix" id="samples">
+        <div class="search">
+            <h3>Tìm kiếm:</h3>
+            <form action='https://www.facebook.com/groups/loadpapersteam/search/?' method='GET' target='_blank'>
+            <input type='text' name='query' size=80 placeholder='nhập thông tin cần tìm'>
+            <button type='submit'>Tìm</button>
+            </form>
+        </div>
+    </section>
 
     <section class="clearfix" id="samples">
         <div class="list">
-            <h3>Pending request</h3>
+            <h3>Yêu cầu chưa có trả lời</h3>
             
         <ul class="friends">
 <?php
@@ -186,10 +227,13 @@ if ($user_id) {
         $time = date("M d Y h:ia",$time);
 
         $perml = idx($req, 'permalink');
+
+        $user = $users_obj[idx($req,'actor_id')];
+        $pic = $user['pic_square'];
 ?>
-                <li>
-                    <span class="title"><a href="<?php echo he($perml) ?>" target="_top"><?php echo $time; ?></a></span>
-                    <span class="message"><?php echo linkify(he($msg)); ?></span>
+                <li><div class="imgmsg"><img src="<?php echo $pic; ?>"/><span></span></div><div class="outermsg">
+                    <span class="title"><a href="<?php echo he($perml) ?>" target="_blank"><?php echo $time; ?> - <?php echo $user['name']; ?></a></span>
+                    <span class="message"><?php echo linkify(he($msg)); ?></span></div>
                 </li>
 <?php
     }

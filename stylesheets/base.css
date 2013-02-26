@@ -6,7 +6,6 @@
 /* =global elements
 --------------------------------------------- */
 body {
-  color: #999;
   font: 14px/1.5em "Lucida Grande", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   width: 720px;
@@ -256,7 +255,6 @@ header .tagline {
 /* =samples
 --------------------------------------------- */
 #samples {
-  background-image: url("../images/samples-bg.png");
   border-bottom: 1px solid #dadada;
   border-left: 1px solid #b3b3b3;
   border-right: 1px solid #b3b3b3;
@@ -264,12 +262,10 @@ header .tagline {
 }
 
 #samples h3 {
-  background: url("../images/header-sketch.png") no-repeat;
-  color: #646464;
   font-weight: bold;
-  font-size: 11px;
+  font-size: 16px;
   line-height: 29px;
-  padding-left: 10px;
+  padding-left: 6px;
 }
 
 #samples ul {
@@ -283,27 +279,24 @@ header .tagline {
 #samples li {
   background-repeat: no-repeat;
   background-position: 0 0;
-  color: #7c7c7c;
   display: block;
   font-size: 11px;
-  font-weight: bold;
   /*height: 32px;*/
   margin-bottom: 11px;
   overflow: hidden;
   position: relative;
+  border: 1px solid #ccc;
+  padding: 8px;
 }
 
 #samples li a:link,
 #samples li a:visited {
   display: block;
-  line-height: 32px;
-  padding-left: 36px;
 }
 
 #samples .list img {
   height: auto;
   left: 0;
-  position: absolute;
   top: 0;
   /* width: 32px; */
 }
@@ -354,4 +347,25 @@ header .tagline {
 
 .clearfix {
   zoom: 1;
+}
+
+.imgmsg {
+    float:left;
+    width:50px;
+    height:50px;
+    margin-top:4px;
+    margin-bottom:16px;
+}
+.outermsg {
+    margin-left: 60px;
+}
+
+.message {
+    font-size: 13px;
+}
+.title {
+    font-size: 14px;
+}
+.search input{ 
+    margin-left: 5px;
 }
