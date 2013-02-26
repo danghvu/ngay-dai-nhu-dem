@@ -173,13 +173,24 @@ while(tags.length)
 if ($user_id) {
 ?>
 
-    <section class="clearfix">
+    <section class="clearfix" id="samples">
         <div class="list">
             <h3>Pending request</h3>
             
-            <pre>
-                <?php print_r($req_obj); ?>
-            </pre>
+<?php
+    foreach ($req_obj as $req) {
+        $msg = idx($req, 'message');
+        $time = idx($req, 'created_time');
+        $perml = idx($req, 'permalink');
+?>
+                <li>
+                    <?php echo he($msg); ?>
+                    Posted at: <a href="<?php echo he($perml) ?>" target="_top"><?php echo $time; ?></a>
+                </li>
+<?php
+    }
+
+?>
         </div>
     </section>
 
