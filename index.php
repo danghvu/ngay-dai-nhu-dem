@@ -187,7 +187,8 @@ while(tags.length)
       <div>
         <h1>Chào <strong><?php echo he(idx($basic, 'name')); ?></strong></h1>
         <p class="tagline">
-          <a href="<?php echo he(idx($app_info, 'link'));?>" target="_top"><?php echo he($app_name); ?></a>
+          <a href="<?php echo he(idx($app_info, 'link'));?>" target="_top">Ứng dụng <?php echo he($app_name); ?></a><br />
+          <a href="https://www.facebook.com/groups/loadpapersteam/">Nhóm tải báo</a>
         </p>
       </div>
 
