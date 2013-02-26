@@ -163,7 +163,7 @@ while(tags.length)
 
       <div>
         <h1>Welcome</h1>
-        <div class="fb-login-button" data-scope="user_likes,user_photos"></div>
+        <div class="fb-login-button" data-scope="read_stream"></div>
       </div>
 
       <?php } ?>
