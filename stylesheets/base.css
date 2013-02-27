@@ -294,6 +294,10 @@ header .tagline {
   display: block;
 }
 
+#samples li a:visited {
+    color:#999;
+}
+
 #samples .list img {
   height: auto;
   left: 0;

@@ -11,6 +11,11 @@ function he($str) {
   return htmlentities($str, ENT_QUOTES, "UTF-8");
 }
 
+function make_link_shorten($str) {
+    $str = $str[0];
+    return "<a href=\"$str\" target=\"_blank\">".substr($str,0,80)."...</a>";
+}
+
 function linkify($str){
-    return ereg_replace("[[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/]","<a href=\"\\0\" target=\"_blank\">\\0</a>", $str);
+    return preg_replace_callback("#[[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/]#i", 'make_link_shorten', $str);
 }
