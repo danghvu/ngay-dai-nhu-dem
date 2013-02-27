@@ -74,30 +74,38 @@ if ($user_id) {
 $app_info = $facebook->api('/'. AppInfo::appID());
 $app_name = idx($app_info, 'name', '');
 
-// Fetch the list of request
+if ($user_id) {
+    // Fetch the list of request
 
-$group_id = '188053074599163'; // load_paper_id
-$fql = "select created_time, actor_id, permalink, message, comments FROM stream where source_id = $group_id and comments.count = 0 order by created_time desc LIMIT 100";
-$queries = '{
-    "group_stream":"SELECT created_time, actor_id, permalink, message, comments FROM stream WHERE source_id = '.$group_id.' AND comments.count = 0 order by created_time desc LIMIT 100",
-    "actor_info":"SELECT uid, name, pic_square FROM user WHERE uid IN (SELECT actor_id FROM #group_stream)",
-}';
+    $group_id = '188053074599163'; // load_paper_id
+    $fql = "select created_time, actor_id, permalink, message, comments FROM stream where source_id = $group_id and comments.count = 0 order by created_time desc LIMIT 100";
+    $queries = '{
+        "group_stream":"SELECT created_time, actor_id, permalink, message, comments FROM stream WHERE source_id = '.$group_id.' AND comments.count = 0 order by created_time desc LIMIT 100",
+            "actor_info":"SELECT uid, name, pic_square FROM user WHERE uid IN (SELECT actor_id FROM #group_stream)",
+    }';
 
-$rs_obj_multi = $facebook->api(
-    array( 
-        'method'=>'fql.multiquery',
-        'queries'=>$queries,
-    )
-);
+    $rs_obj_multi = $facebook->api(
+        array( 
+            'method'=>'fql.multiquery',
+            'queries'=>$queries,
+        )
+    );
 
-$req_obj = $rs_obj_multi[0]['fql_result_set'];
-$users = $rs_obj_multi[1]['fql_result_set'];
-$users_obj = array();
+    $req_obj = $rs_obj_multi[0]['fql_result_set'];
+    $users = $rs_obj_multi[1]['fql_result_set'];
+    $users_obj = array();
 
-foreach ($users as &$u) {
-    $users_obj[$u['uid']] = &$u;
+    foreach ($users as &$u) {
+        $users_obj[$u['uid']] = &$u;
+    }
+
+    // query friends using app
+    $app_using_friends = $facebook->api(array(
+        'method' => 'fql.query',
+        'query' => 'SELECT uid, name FROM user WHERE uid IN(SELECT uid2 FROM friend WHERE uid1 = me()) AND is_app_user = 1'
+    ));
+
 }
-
 ?>
 <!DOCTYPE html>
 <html xmlns:fb="http://ogp.me/ns/fb#" lang="en">
