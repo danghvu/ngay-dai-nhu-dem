@@ -2,7 +2,14 @@
 
 require_once('common.php');
 
-if (!is_login()) { 
+if (!$user_id) { 
+    header('HTTP/1.0 403 Forbidden');
+    exit();
+}
+
+try {
+     $basic = $facebook->api('/me');
+} catch (FacebookApiException $e) {
     header('HTTP/1.0 403 Forbidden');
     exit();
 }
