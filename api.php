@@ -10,7 +10,11 @@ if (!is_login()) {
 try {
     $basic = $facebook->api('/me');
 } catch (FacebookApiException $e) {
-    $facebook->setAccessToken($_GET['token']);
+    if (!isset($_POST['token'])) {
+        header('HTTP/1.0 403 Forbidden');
+        exit();
+    }
+    $facebook->setAccessToken($_POST['token']);
 }
 
 require_once('loadpaper.php');
