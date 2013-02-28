@@ -114,6 +114,7 @@ while(tags.length)
                 window.location = window.location;
             });
 
+            load_no_comment();
 
             FB.Canvas.setAutoGrow();
         };
@@ -209,8 +210,6 @@ function load_no_comment() {
         }
     });
 }
-
-load_no_comment();
 </script>
 
   </body>
