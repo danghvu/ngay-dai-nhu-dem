@@ -17,6 +17,8 @@ try {
     die($e);
 }
 
+echo "ACCESS_TOKEN: ".($facebook->getAccessToken());
+
 ?>
 
         <ul class="friends">
