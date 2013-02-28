@@ -8,9 +8,9 @@ if (!is_login()) {
 }
 
 try {
-     $basic = $facebook->api('/me');
+    $basic = $facebook->api('/me');
 } catch (FacebookApiException $e) {
-     die($e);
+    $facebook->setAccessToken($_GET['token']);
 }
 
 require_once('loadpaper.php');

@@ -114,6 +114,7 @@ while(tags.length)
                 window.location = window.location;
             });
 
+
             FB.Canvas.setAutoGrow();
         };
 
@@ -198,10 +199,15 @@ if (is_login()) {
 <script language='javascript'>
 function load_no_comment() {
     $('#request_no_comment').html("Đang tải ...");
-    
-    var obj = $.get('api.php', function(data) {
-        $('#request_no_comment').html(data);
-    }); 
+
+    FB.getLoginStatus(function (response) {
+        if (response.authResponse) {
+            var token = response.authResponse.accessToken;
+            var obj = $.get('api.php?token='+token, function(data) {
+                $('#request_no_comment').html(data);
+            };
+        }
+    }
 }
 
 load_no_comment();
