@@ -7,7 +7,7 @@ if (!is_login()) {
     exit();
 }
 
-header('P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
+// header('P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 
 require_once('loadpaper.php');
 try {

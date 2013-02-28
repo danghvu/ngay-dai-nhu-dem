@@ -20,8 +20,8 @@ else
 $facebook = new Facebook(array(
     'appId'  => AppInfo::appID(),
     'secret' => AppInfo::appSecret(),
-    'sharedSession' => true,
-    'trustForwarded' => true,
+    // 'sharedSession' => true,
+    // 'trustForwarded' => true,
 ));
 
 $user_id = $facebook->getUser();
