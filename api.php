@@ -10,10 +10,13 @@ if (!is_login()) {
 header('P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 
 require_once('loadpaper.php');
+try {
+    $loadpaper = new LoadPaperAPI($facebook);
+    $result_obj = $loadpaper->get_post_no_comment();
+} catch (FacebookApiException $e) {
+    die($e);
+}
 
-$loadpaper = new LoadPaperAPI($facebook);
-
-$result_obj = $loadpaper->get_post_no_comment();
 ?>
 
         <ul class="friends">
