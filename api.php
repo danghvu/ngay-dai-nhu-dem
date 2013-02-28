@@ -2,7 +2,7 @@
 
 require_once('common.php');
 
-if (!$user_id) { 
+if (!is_login()) { 
     header('HTTP/1.0 403 Forbidden');
     exit();
 }
@@ -10,8 +10,15 @@ if (!$user_id) {
 try {
      $basic = $facebook->api('/me');
 } catch (FacebookApiException $e) {
-    header('HTTP/1.0 403 Forbidden');
-    exit();
+    $access_token = $_SESSION['fb_'.AppInfo::appID().'_access_token'];.
+    die($access_token);
+    if($access_token){
+        try { 
+            $facebook->setAccessToken($access_token);
+        } catch (FacebookApiException $e) { 
+            die($e);
+        }
+    }
 }
 
 // header('P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
