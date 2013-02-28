@@ -1,52 +1,8 @@
 <?php
 
-/**
- * This sample app is provided to kickstart your experience using Facebook's
- * resources for developers.  This sample app provides examples of several
- * key concepts, including authentication, the Graph API, and FQL (Facebook
- * Query Language). Please visit the docs at 'developers.facebook.com/docs'
- * to learn more about the resources available to you
- */
+require_once('common.php');
 
-// Provides access to app specific values such as your app id and app secret.
-// Defined in 'AppInfo.php'
-require_once('AppInfo.php');
-
-$dev = false;
-
-// Enforce https on production
-if (!$dev && substr(AppInfo::getUrl(), 0, 8) != 'https://' && $_SERVER['REMOTE_ADDR'] != '127.0.0.1') {
-    header('Location: https://'. $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-    exit();
-}
-
-// This provides access to helper functions defined in 'utils.php'
-require_once('utils.php');
-
-
-/*****************************************************************************
- *
- * The content below provides examples of how to fetch Facebook data using the
- * Graph API and FQL.  It uses the helper functions defined in 'utils.php' to
- * do so.  You should change this section so that it prepares all of the
- * information that you want to display to the user.
- *
- ****************************************************************************/
-
-if (!$dev)
-    require_once('sdk/src/facebook.php');
-else
-    require_once('../sdk/src/facebook.php');
-
-$facebook = new Facebook(array(
-    'appId'  => AppInfo::appID(),
-    'secret' => AppInfo::appSecret(),
-    'sharedSession' => true,
-    'trustForwarded' => true,
-));
-
-$user_id = $facebook->getUser();
-if ($user_id) {
+if (is_login()) {
     try {
         // Fetch the viewer's basic information
         $basic = $facebook->api('/me');
@@ -68,20 +24,11 @@ if ($user_id) {
             exit();
         }
     }
-}
-
-// Fetch the basic info of the app that they are using
-$app_info = $facebook->api('/'. AppInfo::appID());
-$app_name = idx($app_info, 'name', '');
-
-if ($user_id) {
     // Fetch the list of request
 
     $group_id = '188053074599163'; // load_paper_id
-    $fql = "select created_time, actor_id, permalink, message, comments FROM stream where source_id = $group_id and comments.count = 0 order by created_time desc LIMIT 100";
     $queries = '{
-        "group_stream":"SELECT created_time, actor_id, permalink, message, comments FROM stream WHERE source_id = '.$group_id.' AND comments.count = 0 order by created_time desc LIMIT 100",
-            "actor_info":"SELECT uid, name, pic_square FROM user WHERE uid IN (SELECT actor_id FROM #group_stream)",
+        "app_using":"SELECT uid, name FROM user WHERE uid IN(SELECT uid2 FROM friend WHERE uid1 = me()) AND is_app_user = 1",
     }';
 
     $rs_obj_multi = $facebook->api(
@@ -91,19 +38,11 @@ if ($user_id) {
         )
     );
 
-    $req_obj = $rs_obj_multi[0]['fql_result_set'];
-    $users = $rs_obj_multi[1]['fql_result_set'];
-    $users_obj = array();
-
-    foreach ($users as &$u) {
-        $users_obj[$u['uid']] = &$u;
+    foreach( $rs_obj_multi as &$rs ) {
+        $data = $rs['fql_result_set'];
+        if ($rs['name'] === 'app_using')
+            $app_using_friends = $data;
     }
-
-    // query friends using app
-    $app_using_friends = $facebook->api(array(
-        'method' => 'fql.query',
-        'query' => 'SELECT uid, name FROM user WHERE uid IN(SELECT uid2 FROM friend WHERE uid1 = me()) AND is_app_user = 1'
-    ));
 
 }
 ?>
@@ -158,10 +97,10 @@ while(tags.length)
         window.fbAsyncInit = function() {
             FB.init({
                 appId      : '<?php echo AppInfo::appID(); ?>', // App ID
-                    channelUrl : '//<?php echo $_SERVER["HTTP_HOST"]; ?>/channel.html', // Channel File
-                    status     : true, // check login status
-                    cookie     : true, // enable cookies to allow the server to access the session
-                    xfbml      : true // parse XFBML
+                channelUrl : '//<?php echo $_SERVER["HTTP_HOST"]; ?>/channel.html', // Channel File
+                status     : true, // check login status
+                cookie     : true, // enable cookies to allow the server to access the session
+                xfbml      : true // parse XFBML
             });
 
             // Listen to the auth.login which will be called when the user logs in
@@ -211,7 +150,7 @@ while(tags.length)
     </header>
 
 <?php
-if ($user_id) {
+if (is_login()) {
 ?>
     <section class="clearfix" id="samples">
         <div class="search">
@@ -224,37 +163,14 @@ if ($user_id) {
     </section>
 
     <section class="clearfix" id="samples">
-        <div class="list">
-            <h3>Yêu cầu chưa có trả lời</h3>
-            
-        <ul class="friends">
-<?php
-    foreach ($req_obj as $req) {
-        $msg = idx($req, 'message');
-
-        $time = idx($req, 'created_time');
-        $time = date("M d Y h:ia",$time);
-
-        $perml = idx($req, 'permalink');
-
-        $user = $users_obj[idx($req,'actor_id')];
-        $pic = $user['pic_square'];
-?>
-                <li><div class="imgmsg"><img src="<?php echo $pic; ?>"/><span></span></div><div class="outermsg">
-                    <span class="title"><a href="<?php echo he($perml) ?>" target="_blank"><?php echo $time; ?> - <?php echo $user['name']; ?></a></span>
-                    <span class="message"><?php echo linkify(he($msg)); ?></span></div>
-                </li>
-<?php
-    }
-
-?>
-        </ul>
+        <h3><a href="#" title="click to reload" onclick='load_no_comment()'>Yêu cầu chưa có trả lời</a></h3>
+        <div class="list" id="request_no_comment">
         </div>
     </section>
 
     <section id="samples" class="clearfix">
+      <h3>Bạn bè sử dụng ứng dụng này </h3>
       <div class="list">
-        <h3>Friends using this app</h3>
         <ul class="friends">
 <?php
     foreach ($app_using_friends as $auf) {
@@ -269,14 +185,26 @@ if ($user_id) {
             </a>
           </li>
 <?php
-    }
+    } // end foreach
 ?>
         </ul>
       </div>
     </section>
 
 <?php
-}
+} // end if (userid)
 ?>
+
+<script language='javascript'>
+function load_no_comment() {
+    $('#request_no_comment').html("Đang tải ...")
+    var obj = $.get('api.php', function(data) {
+        $('#request_no_comment').html(data);
+    }); 
+}
+
+load_no_comment();
+</script>
+
   </body>
 </html>
