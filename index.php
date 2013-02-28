@@ -207,7 +207,7 @@ function load_no_comment() {
                 $('#request_no_comment').html(data);
             });
         }
-    }
+    });
 }
 
 load_no_comment();
