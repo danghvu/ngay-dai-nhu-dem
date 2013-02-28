@@ -10,28 +10,12 @@ if (!is_login()) {
 try {
      $basic = $facebook->api('/me');
 } catch (FacebookApiException $e) {
-    $access_token = $_SESSION['fb_'.($facebook->getAppId()).'_access_token'];
-    die('access_token: '.$access_token);
-    if($access_token){
-        try { 
-            $facebook->setAccessToken($access_token);
-        } catch (FacebookApiException $e) { 
-            die($e);
-        }
-    }
+     die($e);
 }
-
-// header('P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 
 require_once('loadpaper.php');
-try {
-    $loadpaper = new LoadPaperAPI($facebook);
-    $result_obj = $loadpaper->get_post_no_comment();
-} catch (FacebookApiException $e) {
-    die($e);
-}
-
-echo "ACCESS_TOKEN: ".($facebook->getAccessToken());
+$loadpaper = new LoadPaperAPI($facebook);
+$result_obj = $loadpaper->get_post_no_comment();
 
 ?>
 
