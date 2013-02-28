@@ -204,7 +204,7 @@ function load_no_comment() {
     FB.getLoginStatus(function (response) {
         if (response.authResponse) {
             var token = response.authResponse.accessToken;
-            var obj = $.get('api.php?token='+token, function(data) {
+            var obj = $.get('api.php', {'token':token}, function(data) {
                 $('#request_no_comment').html(data);
             });
         }
