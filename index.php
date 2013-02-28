@@ -197,7 +197,7 @@ if (is_login()) {
 
 <script language='javascript'>
 function load_no_comment() {
-    $('#request_no_comment').html("Đang tải ...")
+    $('#request_no_comment').html("Đang tải ...");
     var obj = $.get('api.php', function(data) {
         $('#request_no_comment').html(data);
     }); 
