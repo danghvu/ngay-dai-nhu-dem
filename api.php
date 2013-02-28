@@ -10,8 +10,8 @@ if (!is_login()) {
 try {
      $basic = $facebook->api('/me');
 } catch (FacebookApiException $e) {
-    $access_token = $_SESSION['fb_'.AppInfo::appID().'_access_token'];
-    die($access_token);
+    $access_token = $_SESSION['fb_'.($facebook->getAppId()).'_access_token'];
+    die('access_token: '.$access_token);
     if($access_token){
         try { 
             $facebook->setAccessToken($access_token);
