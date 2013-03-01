@@ -373,3 +373,8 @@ header .tagline {
 .search input{ 
     margin-left: 5px;
 }
+
+.tools a:link, 
+.tools a:visited {
+    color: red !important;
+}

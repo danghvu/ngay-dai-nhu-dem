@@ -19,3 +19,11 @@ function make_link_shorten($str) {
 function linkify($str){
     return preg_replace_callback("#[[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/]#i", 'make_link_shorten', $str);
 }
+
+function findemail($str) {
+    preg_match("#[^\s]+@[^\s]+[[:alnum:]]#i", $str, $m); // simple catch email for now
+    return $m[0];
+}
+
+?>
+
