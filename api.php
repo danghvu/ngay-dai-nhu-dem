@@ -1,5 +1,6 @@
 <?php
-
+header("Content-Type: application/json");
+ini_set('display_errors','0');
 require_once('common.php');
 
 if (!is_authorized()) { 
@@ -21,25 +22,17 @@ require_once('loadpaper.php');
 $loadpaper = new LoadPaperAPI($facebook);
 $result_obj = $loadpaper->get_post_no_comment();
 
-?>
-
-        <ul class="friends">
-<?php
-    foreach ($result_obj as $req) {
-        $msg = idx($req, 'message');
-
-        $time = idx($req, 'created_time');
-        $time = date("M d Y h:ia",$time);
-
-        $perml = idx($req, 'permalink');
-
-        $user = idx($req, 'owner');
-        $pic = idx($user, 'pic_square');
-        $id = idx($user, 'uid');
+    foreach ($result_obj as &$req) {
 
         $email = findemail($msg);
-        $can_msg = idx($user, 'can_message');
-?>
+        if($email)
+            $req['email'] = $email; 
+        #remove comments
+        if(array_key_exists('comments',$req)){
+            unset($req['comments']);
+        }
+
+        /*
 
             <li><div class="imgmsg"><a href="https://www.facebook.com/<?php echo $id ?>" target="_blank"><img src="<?php echo $pic; ?>"/></a></div>
             <div class="outermsg">
@@ -56,7 +49,8 @@ $result_obj = $loadpaper->get_post_no_comment();
             </span>
             </div>
             </li>
-<?php
+    */
     } // end foreach
+
+    echo json_encode($result_obj);
 ?>
-        </ul>
