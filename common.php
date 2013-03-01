@@ -30,9 +30,19 @@ $user_id = $facebook->getUser();
 $app_info = $facebook->api('/'. AppInfo::appID());
 $app_name = idx($app_info, 'name', '');
 
-function is_login() {
+function is_authorized() {
     global $user_id;
     return $user_id;
+}
+
+function token_expired() {
+    global $basic, $facebook;
+    try {
+        $basic = $facebook->api('/me');
+    } catch (FacebookApiException $e) {
+        return true;
+    }
+    return false;
 }
 
 ?>

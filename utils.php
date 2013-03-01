@@ -25,5 +25,23 @@ function findemail($str) {
     return $m[0];
 }
 
+function deny_access() {
+    header('HTTP/1.0 403 Forbidden');
+    exit();
+}
+
+function clear_cookie() {
+    if (isset($_SERVER['HTTP_COOKIE'])) {
+        $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
+        foreach($cookies as $cookie) {
+            $parts = explode('=', $cookie);
+            $name = trim($parts[0]);
+            setcookie($name, '', time()-1000);
+            setcookie($name, '', time()-1000, '/');
+        }
+    }
+
+}
+
 ?>
 

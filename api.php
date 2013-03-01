@@ -2,19 +2,19 @@
 
 require_once('common.php');
 
-if (!is_login()) { 
-    header('HTTP/1.0 403 Forbidden');
-    exit();
+if (!is_authorized()) { 
+    deny_access();
 }
 
-try {
-    $basic = $facebook->api('/me');
-} catch (FacebookApiException $e) {
-    if (!isset($_POST['token'])) {
-        header('HTTP/1.0 403 Forbidden');
-        exit();
+if (token_expired()) {
+    if (isset($_POST['token'])) {
+        $facebook->setAccessToken($_POST['token']);
     }
-    $facebook->setAccessToken($_POST['token']);
+}
+
+// try again
+if (token_expired()) {
+    deny_access();
 }
 
 require_once('loadpaper.php');

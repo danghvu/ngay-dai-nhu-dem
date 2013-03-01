@@ -2,30 +2,15 @@
 
 require_once('common.php');
 
-if (is_login()) {
-    try {
-        // Fetch the viewer's basic information
-        $basic = $facebook->api('/me');
-    } catch (FacebookApiException $e) {
-        // If the call fails we check if we still have a user. The user will be
-        // cleared if the error is because of an invalid accesstoken
-        if (!$facebook->getUser()) {
-            // unset all cookie before relogin
-            if (isset($_SERVER['HTTP_COOKIE'])) {
-                $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
-                foreach($cookies as $cookie) {
-                    $parts = explode('=', $cookie);
-                    $name = trim($parts[0]);
-                    setcookie($name, '', time()-1000);
-                    setcookie($name, '', time()-1000, '/');
-                }
-            }
-            header('Location: '. AppInfo::getUrl($_SERVER['REQUEST_URI']));
-            exit();
-        }
-    }
-    // Fetch the list of request
+if (is_authorized()) {
 
+    if (token_expired()) {
+        clear_cookie();
+        header('Location: '. AppInfo::getUrl($_SERVER['REQUEST_URI']));
+        exit();
+    }
+
+    // Fetch the list of request
     $group_id = '188053074599163'; // load_paper_id
     $queries = '{
         "app_using":"SELECT uid, name FROM user WHERE uid IN(SELECT uid2 FROM friend WHERE uid1 = me()) AND is_app_user = 1",
@@ -43,7 +28,6 @@ if (is_login()) {
         if ($rs['name'] === 'app_using')
             $app_using_friends = $data;
     }
-
 }
 ?>
 <!DOCTYPE html>
@@ -152,7 +136,7 @@ while(tags.length)
     </header>
 
 <?php
-if (is_login()) {
+if (isset($basic)) {
 ?>
     <section class="clearfix" id="samples">
         <div class="search">
