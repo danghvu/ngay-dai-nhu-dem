@@ -3,7 +3,6 @@
 require_once('common.php');
 
 if (is_authorized()) {
-
     if (token_expired()) {
         clear_cookie();
         header('Location: '. AppInfo::getUrl($_SERVER['REQUEST_URI']));
@@ -58,6 +57,8 @@ if (is_authorized()) {
     <meta property="fb:app_id" content="<?php echo AppInfo::appID(); ?>" />
 
     <script type="text/javascript" src="javascript/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="javascript/dust-full-0.3.0.min.js"></script>
+    <script type="text/javascript" src="javascript/date.format.js"></script>
 
 <script type="text/javascript">
 function logResponse(response) {
@@ -68,7 +69,7 @@ function logResponse(response) {
 </script>
 
     <!--[if IE]>
-<script type="text/javascript">
+<script type="text/javascript"> 
 var tags = ['header', 'section'];
 while(tags.length)
     document.createElement(tags.pop());
@@ -189,7 +190,9 @@ function load_no_comment() {
         if (response.authResponse) {
             var token = response.authResponse.accessToken;
             var obj = $.post('api.php', {'token':token}, function(data) {
-                $('#request_no_comment').html(data);
+                //console.log(data);
+                //$('#request_no_comment').html(data);
+                renderRequests({requests:data});
             });
         }
     });
@@ -203,7 +206,54 @@ function sendmsg(id) {
         link: getlink,
     });
 }
-</script>
 
+
+var compiledTemplate;
+function renderRequests(context){
+
+    if(!compiledTemplate){
+        //compile dustjs template 
+        compiledTemplate = dust.compile($('#request-template').html(), "request-list");
+        dust.loadSource(compiledTemplate);
+    }    
+
+    //format timestamp based on client timezone
+    for(req in context.requests){
+
+        var timestamp = new Date(Number(req.created_time) *1000);
+        req.created_time = timestamp.format( "mmm, dd yyyy h:MM TT");
+    }
+
+    //rendering
+    dust.render("request-list", context, function(err, out){
+        if(err){
+            //handle error here 
+        }
+        else{
+            $('#request_no_comment').html(out);
+        }
+    });
+}
+
+</script>
+<script type="text/x-template" id="request-template">
+<ul class="friends">
+{#requests}
+    <li><div class="imgmsg"><a href="https://www.facebook.com/{owner.uid}" target="_blank"><img src="{pic_square}"/></a></div>
+            <div class="outermsg">
+            <span class="title"><a href="{permalink}" target="_blank">{created_time} - {owner.name}</a></span>
+            <span class="message">{message}</span>
+            <span class="tools">                
+                {#email}
+                    <a href="mailto:{email}">Gửi qua Email</a>                
+                {/email}
+                <a href="https://www.facebook.com/{owner.uid}" target="_blank">Gửi tin nhắn riêng</a>                
+                <a href="#" onclick="sendmsg('{owner.uid}')">Gửi link trực tiếp</a>
+            </span>
+            </div>
+    </li>
+{/requests}
+</ul>
+</script>
   </body>
 </html>
