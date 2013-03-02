@@ -11,6 +11,7 @@ if (is_authorized()) {
 
     // Fetch the list of request
     $group_id = '188053074599163'; // load_paper_id
+    /*
     $queries = '{
         "app_using":"SELECT uid, name FROM user WHERE uid IN(SELECT uid2 FROM friend WHERE uid1 = me()) AND is_app_user = 1",
     }';
@@ -27,6 +28,7 @@ if (is_authorized()) {
         if ($rs['name'] === 'app_using')
             $app_using_friends = $data;
     }
+    */
 }
 ?>
 <!DOCTYPE html>
@@ -157,24 +159,8 @@ if (isset($basic)) {
 
     <section id="samples" class="clearfix">
       <h3>Bạn bè sử dụng ứng dụng này </h3>
-      <div class="list">
-        <ul class="friends">
-<?php
-    foreach ($app_using_friends as $auf) {
-        // Extract the pieces of info we need from the requests above
-        $id = idx($auf, 'uid');
-        $name = idx($auf, 'name');
-?>
-          <li>
-            <a href="https://www.facebook.com/<?php echo he($id); ?>" target="_top">
-              <img src="https://graph.facebook.com/<?php echo he($id) ?>/picture?type=square" alt="<?php echo he($name); ?>">
-              <?php echo he($name); ?>
-            </a>
-          </li>
-<?php
-    } // end foreach
-?>
-        </ul>
+      <div class="list" id="friend-use-app">
+
       </div>
     </section>
 
@@ -194,6 +180,8 @@ function load_no_comment() {
                 //$('#request_no_comment').html(data);
                 renderRequests({requests:data});
             });
+
+            loadAppFriends();
         }
     });
 }
@@ -205,6 +193,16 @@ function sendmsg(id) {
         to: id,
         link: getlink,
     });
+}
+
+function loadAppFriends(){
+    //load friends who use app 
+    FB.api('/fql',{q:"SELECT uid, name FROM user WHERE uid IN(SELECT uid2 FROM friend WHERE uid1 = me()) AND is_app_user = 1"},function(resp){
+        if(resp.data){
+            //render friends list
+            renderFriends({friends:resp.data});
+        }
+    }) ;  
 }
 
 
@@ -239,13 +237,30 @@ function renderRequests(context){
     });
 }
 
+var friendTemplate;
+function renderFriends(context){
+    if(!friendTemplate){
+        friendTemplate = dust.compile($('#friend-template').html(), "friend-list");
+        dust.loadSource(friendTemplate);      
+    }
+
+    dust.render("friend-list", context, function(err, out){
+        $('#friend-use-app').html(out);
+    });
+}
+
 </script>
+
+
+<!--
+--------------------- UI TEMPLATE ---------------------------------
+-->
 <script type="text/x-template" id="request-template">
 <ul class="friends">
 {#requests}
     <li><div class="imgmsg"><a href="https://www.facebook.com/{owner.uid}" target="_blank"><img src="{owner.pic_square|s}"/></a></div>
             <div class="outermsg">
-            <span class="title"><a href="{permalink|s}" target="_blank">{created_time} - {owner.name}</a></span>
+            <span class="title"><a href="{permalink|s}" target="_blank">{created_time} - {owner.name|s}</a></span>
             <span class="message">{message|s}</span>
             <span class="tools">                
                 {#email}
@@ -259,5 +274,18 @@ function renderRequests(context){
 {/requests}
 </ul>
 </script>
+<script type="text/x-template" id="friend-template">
+<ul class="friends">
+{#friends}
+  <li>
+    <a href="https://www.facebook.com/{uid}" target="_top">
+      <img src="https://graph.facebook.com/{uid}/picture?type=square" alt="{name}">
+      {name|s}
+    </a>
+  </li>
+{/friends}
+</ul>
+</script>
+
   </body>
 </html>
