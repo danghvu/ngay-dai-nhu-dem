@@ -31,6 +31,13 @@ class AppInfo {
   }
 
   /**
+   *@return facebook app page url 
+   */
+   public static function appUrl(){
+    return getenv('FACEBOOK_APP_URL');
+   }
+
+  /**
    * @return the url
    */
   public static function getUrl($path = '/') {

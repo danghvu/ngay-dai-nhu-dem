@@ -10,7 +10,7 @@ if (is_authorized()) {
     }
 
     // Fetch the list of request
-    $group_id = '188053074599163'; // load_paper_id
+    //$group_id = '188053074599163'; // load_paper_id
     /*
     $queries = '{
         "app_using":"SELECT uid, name FROM user WHERE uid IN(SELECT uid2 FROM friend WHERE uid1 = me()) AND is_app_user = 1",
@@ -101,7 +101,7 @@ while(tags.length)
                 window.location = window.location;
             });
 
-            load_no_comment();
+            //load_no_comment();
 
             FB.Canvas.setAutoGrow();
         };
@@ -125,6 +125,8 @@ while(tags.length)
         <p class="tagline">
           <a href="<?php echo he(idx($app_info, 'link'));?>" target="_top">Ứng dụng <?php echo he($app_name); ?></a><br />
           <a href="https://www.facebook.com/groups/loadpapersteam/">Nhóm tải báo</a>
+          <br/>
+          <a href="https://www.facebook.com/dialog/pagetab?app_id=<?php echo AppInfo::appID(); ?>&next=<?php echo AppInfo::appUrl(); ?>">Add App to Page Tab</a>
         </p>
       </div>
 
