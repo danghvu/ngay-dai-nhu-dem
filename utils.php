@@ -22,7 +22,7 @@ function linkify($str){
 
 function findemail($str) {
     preg_match("#[^\s]+@[^\s]+[[:alnum:]]#i", $str, $m); // simple catch email for now
-    return $m[0];
+    return ($m!=NULL)? $m[0] : NULL;
 }
 
 function deny_access() {

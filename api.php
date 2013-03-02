@@ -23,7 +23,7 @@ $loadpaper = new LoadPaperAPI($facebook);
 $result_obj = $loadpaper->get_post_no_comment();
 
     foreach ($result_obj as &$req) {
-
+        $msg = $req['message'];
         $email = findemail($msg);
         if($email)
             $req['email'] = $email; 
@@ -31,6 +31,9 @@ $result_obj = $loadpaper->get_post_no_comment();
         if(array_key_exists('comments',$req)){
             unset($req['comments']);
         }
+
+        $req['owner']['name'] = he($req['owner']['name']);
+        $req['message'] = linkify(he($msg));
 
         /*
 

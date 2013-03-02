@@ -219,9 +219,13 @@ function renderRequests(context){
 
     //format timestamp based on client timezone
     for(req in context.requests){
-
-        var timestamp = new Date(Number(req.created_time) *1000);
-        req.created_time = timestamp.format( "mmm, dd yyyy h:MM TT");
+        try{
+            var request = context.requests[req];
+            var timestamp = new Date(Number(request.created_time) *1000);        
+            request.created_time = timestamp.format( "mmm, dd yyyy h:MM TT");
+        }catch(err){
+            console.log(err);
+        }
     }
 
     //rendering
@@ -239,13 +243,13 @@ function renderRequests(context){
 <script type="text/x-template" id="request-template">
 <ul class="friends">
 {#requests}
-    <li><div class="imgmsg"><a href="https://www.facebook.com/{owner.uid}" target="_blank"><img src="{pic_square}"/></a></div>
+    <li><div class="imgmsg"><a href="https://www.facebook.com/{owner.uid}" target="_blank"><img src="{owner.pic_square|s}"/></a></div>
             <div class="outermsg">
-            <span class="title"><a href="{permalink}" target="_blank">{created_time} - {owner.name}</a></span>
-            <span class="message">{message}</span>
+            <span class="title"><a href="{permalink|s}" target="_blank">{created_time} - {owner.name}</a></span>
+            <span class="message">{message|s}</span>
             <span class="tools">                
                 {#email}
-                    <a href="mailto:{email}">Gửi qua Email</a>                
+                    <a href="mailto:{email|s}">Gửi qua Email</a>                
                 {/email}
                 <a href="https://www.facebook.com/{owner.uid}" target="_blank">Gửi tin nhắn riêng</a>                
                 <a href="#" onclick="sendmsg('{owner.uid}')">Gửi link trực tiếp</a>
