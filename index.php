@@ -102,6 +102,7 @@ while(tags.length)
             });
 
             //load_no_comment();
+            initApp(<?php echo isset($accessToken)? $accessToken:''; ?>);
 
             FB.Canvas.setAutoGrow();
         };
@@ -171,9 +172,25 @@ if (isset($basic)) {
 ?>
 
 <script language='javascript'>
+function initApp(token){
+    window.accessToken = token;
+    if(accessToken){
+        load_no_comment();
+        loadAppFriends();
+    }else{
+        FB.getLoginStatus(function (response) {
+            if(response.authResponse){
+                window.accessToken = response.authResponse.accessToken;
+                load_no_comment();
+                loadAppFriends();
+            }
+        });
+    }
+}
+
 function load_no_comment() {
     $('#request_no_comment').html("Đang tải ...");
-
+    /*
     FB.getLoginStatus(function (response) {
         if (response.authResponse) {
             var token = response.authResponse.accessToken;
@@ -186,6 +203,13 @@ function load_no_comment() {
             loadAppFriends();
         }
     });
+    */
+    if(accessToken){
+        var obj = $.post('api.php', {'token':token}, function(data) {
+            renderRequests({requests:data});
+        });
+    }
+
 }
 
 function sendmsg(id) {
