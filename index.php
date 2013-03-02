@@ -102,7 +102,7 @@ while(tags.length)
             });
 
             //load_no_comment();
-            initApp(<?php echo isset($accessToken)? $accessToken:''; ?>);
+            initApp("<?php echo isset($accessToken)? $accessToken:''; ?>");
 
             FB.Canvas.setAutoGrow();
         };
