@@ -205,7 +205,7 @@ function load_no_comment() {
     });
     */
     if(accessToken){
-        var obj = $.post('api.php', {'token':token}, function(data) {
+        var obj = $.post('api.php', {'token':accessToken}, function(data) {
             renderRequests({requests:data});
         });
     }
