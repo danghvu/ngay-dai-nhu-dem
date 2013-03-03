@@ -135,7 +135,7 @@ while(tags.length)
 
       <div>
         <h1>Welcome</h1>
-        <div class="fb-login-button" data-scope="read_stream"></div>
+        <div class="fb-login-button" data-scope="read_stream, publish_actions"></div>
       </div>
 
       <?php } ?>
@@ -190,26 +190,11 @@ function initApp(token){
 
 function load_no_comment() {
     $('#request_no_comment').html("Đang tải ...");
-    /*
-    FB.getLoginStatus(function (response) {
-        if (response.authResponse) {
-            var token = response.authResponse.accessToken;
-            var obj = $.post('api.php', {'token':token}, function(data) {
-                //console.log(data);
-                //$('#request_no_comment').html(data);
-                renderRequests({requests:data});
-            });
-
-            loadAppFriends();
-        }
-    });
-    */
     if(accessToken){
         var obj = $.post('api.php', {'token':accessToken}, function(data) {
             renderRequests({requests:data});
         });
     }
-
 }
 
 function sendmsg(id) {
@@ -275,6 +260,23 @@ function renderFriends(context){
     });
 }
 
+function show_comment_box(post_id) {
+    $("#comment_box_"+post_id).show();
+}
+
+function submit_comment(post_id) {
+    var content = $("#comment_box_"+post_id+" textarea").val();
+    FB.api('/'+post_id+'/comments', 'post', {message: content}, 
+        function(response) {
+            if (!response || response.error) {
+                alert('Error occured');
+            } else {
+                $('#list_'+post_id+' .tools').hide();
+            }
+        }
+    );
+}
+
 </script>
 
 
@@ -284,7 +286,7 @@ function renderFriends(context){
 <script type="text/x-template" id="request-template">
 <ul class="friends">
 {#requests}
-    <li><div class="imgmsg"><a href="https://www.facebook.com/{owner.uid}" target="_blank"><img src="{owner.pic_square|s}"/></a></div>
+    <li id="list_{post_id}"><div class="imgmsg"><a href="https://www.facebook.com/{owner.uid}" target="_blank"><img src="{owner.pic_square|s}"/></a></div>
             <div class="outermsg">
             <span class="title"><a href="{permalink|s}" target="_blank">{created_time} - {owner.name|s}</a></span>
             <span class="message">{message|s}</span>
@@ -294,6 +296,11 @@ function renderFriends(context){
                 {/email}
                 <a href="https://www.facebook.com/{owner.uid}" target="_blank">Gửi tin nhắn riêng</a>                
                 <a href="#" onclick="sendmsg('{owner.uid}')">Gửi link trực tiếp</a>
+                <a href="#" onclick="show_comment_box('{post_id}')">Đã gửi ?</a>
+                <span class="comment_box" id="comment_box_{post_id}" style="display:none;">
+                    <textarea placeholder="Viết trả lời"></textarea>
+                    <button onclick="submit_comment('{post_id}')">Hoàn thành</button>
+                </span>
             </span>
             </div>
     </li>

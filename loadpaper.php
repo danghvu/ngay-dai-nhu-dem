@@ -1,6 +1,9 @@
 <?php
 
-define ('FB_GROUP_ID', '188053074599163');
+if ($dev)
+    define('FB_GROUP_ID', '389625751134857'); // for demo
+else
+    define ('FB_GROUP_ID', '188053074599163');
 
 class LoadPaperAPI {
 
@@ -22,7 +25,7 @@ class LoadPaperAPI {
 
     public function get_post_no_comment() {
         $queries = '{
-            "gs_no_comment":"SELECT created_time, actor_id, permalink, message, comments FROM stream WHERE source_id = '.FB_GROUP_ID.' AND comments.count = 0 order by created_time desc LIMIT 100",
+            "gs_no_comment":"SELECT created_time, actor_id, post_id, permalink, message, comments FROM stream WHERE source_id = '.FB_GROUP_ID.' AND comments.count = 0 order by created_time desc LIMIT 100",
             "actor_info":"SELECT uid, name, pic_square, can_message FROM user WHERE uid IN (SELECT actor_id FROM #gs_no_comment)",
         }';
         
