@@ -4,6 +4,7 @@ ini_set('display_errors','0');
 require_once('common.php');
 
 if (!is_authorized()) { 
+    error_log('not yet authorized');
     deny_access();
 }
 
