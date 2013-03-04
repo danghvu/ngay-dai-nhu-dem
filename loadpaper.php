@@ -1,7 +1,7 @@
 <?php
 
-if ($dev)
-    define('FB_GROUP_ID', '389625751134857'); // for demo
+if (AppInfo::AppId() === "212124665595942") // dev app
+    define('FB_GROUP_ID', '389625751134857'); 
 else
     define ('FB_GROUP_ID', '188053074599163');
 
