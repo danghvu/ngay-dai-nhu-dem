@@ -95,10 +95,27 @@ while(tags.length)
             FB.Event.subscribe('auth.login', function(response) {
                 // We want to reload the page now so PHP can read the cookie that the
                 // Javascript SDK sat. But we don't want to use
-                // window.location.reload() because if this is in a canvas there was a
-                // post made to this page and a reload will trigger a message to the
-                // user asking if they want to send data again.
-                window.location = window.location;
+
+                // just in case need additional permission, do not reload but ask for it first
+                // maybe switch to on-demand later
+                var perms = ['read_stream', 'publish_actions'];
+
+                FB.api('/me/permissions', function (response) {
+                    for (var i=0;i<perms.length;i++){ 
+                        if (!response.data[0][perms[i]]) {
+                            FB.login(function(response){
+                                if (response.authResponse) { 
+                                    window.location = window.location;
+                                } else {
+                                    alert('need permission');
+                                }
+                            },
+                                {scope:'read_stream, publish_actions'}
+                            );
+                        }
+                    }
+                    window.location = window.location;
+                });
             });
 
             //load_no_comment();
@@ -135,7 +152,7 @@ while(tags.length)
 
       <div>
         <h1>Welcome</h1>
-        <div class="fb-login-button" data-scope="read_stream, publish_actions"></div>
+        <div class="fb-login-button" data-scope="read_stream,publish_actions" ></div>
       </div>
 
       <?php } ?>
