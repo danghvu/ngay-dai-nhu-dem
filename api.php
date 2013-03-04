@@ -3,10 +3,12 @@ header("Content-Type: application/json");
 ini_set('display_errors','0');
 require_once('common.php');
 
+/*
 if (!is_authorized()) { 
     error_log('not yet authorized');
     deny_access();
 }
+*/
 
 if (token_expired()) {
     if (isset($_POST['token'])) {
