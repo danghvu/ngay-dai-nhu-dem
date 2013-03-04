@@ -213,7 +213,7 @@ function load_no_comment() {
 }
 
 function sendmsg(id) {
-    var getlink = prompt("Nhập link:");
+    //var getlink = prompt("Nhập link:");
     FB.ui({
         method: 'send',
         to: id,
