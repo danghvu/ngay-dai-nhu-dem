@@ -96,22 +96,14 @@ while(tags.length)
                 // We want to reload the page now so PHP can read the cookie that the
                 // Javascript SDK sat. But we don't want to use
 
-                // just in case need additional permission, do not reload but ask for it first
+                // just in case need additional permission, do not reload but force click login button
                 // maybe switch to on-demand later
                 var perms = ['read_stream', 'publish_actions'];
 
                 FB.api('/me/permissions', function (response) {
                     for (var i=0;i<perms.length;i++){ 
                         if (!response.data[0][perms[i]]) {
-                            FB.login(function(response){
-                                if (response.authResponse) { 
-                                    window.location = window.location;
-                                } else {
-                                    alert('need permission');
-                                }
-                            },
-                                {scope:'read_stream, publish_actions'}
-                            );
+                            return;
                         }
                     }
                     window.location = window.location;
