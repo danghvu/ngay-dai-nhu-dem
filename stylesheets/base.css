@@ -353,6 +353,8 @@ header .tagline {
   zoom: 1;
 }
 
+#request_no_comment { width: 100%; }
+
 .imgmsg {
     float:left;
     width:50px;
@@ -377,4 +379,9 @@ header .tagline {
 .tools a:link, 
 .tools a:visited {
     color: red !important;
+}
+
+.comment_box textarea{
+    width:50%;
+    display:block; 
 }

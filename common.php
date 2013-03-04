@@ -24,6 +24,8 @@ $facebook = new Facebook(array(
     'trustForwarded' => true,
 ));
 
+$perm_list = array( 'publish_actions', 'read_stream' );
+
 $user_id = $facebook->getUser();
 $accessToken = $facebook->getAccessToken();
 // Fetch the basic info of the app that they are using
@@ -36,12 +38,21 @@ function is_authorized() {
 }
 
 function token_expired() {
-    global $basic, $facebook;
+    global $basic, $facebook, $perm_list;
     try {
         $basic = $facebook->api('/me');
     } catch (FacebookApiException $e) {
         return true;
     }
+    
+    // also check permissions
+    $permissions = $facebook->api("/me/permissions");
+    foreach ($perm_list as &$p) {
+        if (!array_key_exists($p, $permissions['data'][0])) {
+            return true;
+        }
+    }
+
     return false;
 }
 

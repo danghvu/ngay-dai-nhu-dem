@@ -80,43 +80,7 @@ while(tags.length)
   </head>
   <body>
     <div id="fb-root"></div>
-    <script type="text/javascript">
-        window.fbAsyncInit = function() {
-            FB.init({
-                appId      : '<?php echo AppInfo::appID(); ?>', // App ID
-                channelUrl : '//<?php echo $_SERVER["HTTP_HOST"]; ?>/channel.html', // Channel File
-                status     : true, // check login status
-                cookie     : true, // enable cookies to allow the server to access the session
-                xfbml      : true // parse XFBML
-            });
-
-            // Listen to the auth.login which will be called when the user logs in
-            // using the Login button
-            FB.Event.subscribe('auth.login', function(response) {
-                // We want to reload the page now so PHP can read the cookie that the
-                // Javascript SDK sat. But we don't want to use
-                // window.location.reload() because if this is in a canvas there was a
-                // post made to this page and a reload will trigger a message to the
-                // user asking if they want to send data again.
-                window.location = window.location;
-            });
-
-            //load_no_comment();
-            initApp("<?php echo isset($accessToken)? $accessToken:''; ?>");
-
-            FB.Canvas.setAutoGrow();
-        };
-
-        // Load the SDK Asynchronously
-        (function(d, s, id) {
-            var js, fjs = d.getElementsByTagName(s)[0];
-            if (d.getElementById(id)) return;
-            js = d.createElement(s); js.id = id;
-            js.src = "//connect.facebook.net/en_US/all.js";
-            fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));
-    </script>
-
+    
     <header class="clearfix">
       <?php if (isset($basic)) { ?>
       <p id="picture" style="background-image: url(https://graph.facebook.com/<?php echo he($user_id); ?>/picture?type=normal)"></p>
@@ -135,7 +99,7 @@ while(tags.length)
 
       <div>
         <h1>Welcome</h1>
-        <div class="fb-login-button" data-scope="read_stream"></div>
+        <div class="fb-login-button" data-scope="read_stream,publish_actions" ></div>
       </div>
 
       <?php } ?>
@@ -190,26 +154,11 @@ function initApp(token){
 
 function load_no_comment() {
     $('#request_no_comment').html("Đang tải ...");
-    /*
-    FB.getLoginStatus(function (response) {
-        if (response.authResponse) {
-            var token = response.authResponse.accessToken;
-            var obj = $.post('api.php', {'token':token}, function(data) {
-                //console.log(data);
-                //$('#request_no_comment').html(data);
-                renderRequests({requests:data});
-            });
-
-            loadAppFriends();
-        }
-    });
-    */
     if(accessToken){
         var obj = $.post('api.php', {'token':accessToken}, function(data) {
             renderRequests({requests:data});
         });
     }
-
 }
 
 function sendmsg(id) {
@@ -275,6 +224,23 @@ function renderFriends(context){
     });
 }
 
+function show_comment_box(post_id) {
+    $("#comment_box_"+post_id).show();
+}
+
+function submit_comment(post_id) {
+    var content = $("#comment_box_"+post_id+" textarea").val();
+    FB.api('/'+post_id+'/comments', 'post', {message: content}, 
+        function(response) {
+            if (!response || response.error) {
+                alert('Error occured');
+            } else {
+                $('#list_'+post_id+' .tools').hide();
+            }
+        }
+    );
+}
+
 </script>
 
 
@@ -284,7 +250,7 @@ function renderFriends(context){
 <script type="text/x-template" id="request-template">
 <ul class="friends">
 {#requests}
-    <li><div class="imgmsg"><a href="https://www.facebook.com/{owner.uid}" target="_blank"><img src="{owner.pic_square|s}"/></a></div>
+    <li id="list_{post_id}"><div class="imgmsg"><a href="https://www.facebook.com/{owner.uid}" target="_blank"><img src="{owner.pic_square|s}"/></a></div>
             <div class="outermsg">
             <span class="title"><a href="{permalink|s}" target="_blank">{created_time} - {owner.name|s}</a></span>
             <span class="message">{message|s}</span>
@@ -294,6 +260,11 @@ function renderFriends(context){
                 {/email}
                 <a href="https://www.facebook.com/{owner.uid}" target="_blank">Gửi tin nhắn riêng</a>                
                 <a href="#" onclick="sendmsg('{owner.uid}')">Gửi link trực tiếp</a>
+                <a href="#" onclick="show_comment_box('{post_id}')">Đã gửi ?</a>
+                <span class="comment_box" id="comment_box_{post_id}" style="display:none;">
+                    <textarea placeholder="Viết trả lời"></textarea>
+                    <button onclick="submit_comment('{post_id}')">Hoàn thành</button>
+                </span>
             </span>
             </div>
     </li>
@@ -311,6 +282,52 @@ function renderFriends(context){
   </li>
 {/friends}
 </ul>
+</script>
+
+<script type="text/javascript">
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId      : '<?php echo AppInfo::appID(); ?>', // App ID
+                channelUrl : '//<?php echo $_SERVER["HTTP_HOST"]; ?>/channel.html', // Channel File
+                status     : true, // check login status
+                cookie     : true, // enable cookies to allow the server to access the session
+                xfbml      : true // parse XFBML
+            });
+
+            // Listen to the auth.login which will be called when the user logs in
+            // using the Login button
+            FB.Event.subscribe('auth.login', function(response) {
+                // We want to reload the page now so PHP can read the cookie that the
+                // Javascript SDK sat. But we don't want to use
+
+                // just in case need additional permission, do not reload but force click login button
+                // maybe switch to on-demand later
+                var perms = ['read_stream', 'publish_actions'];
+
+                FB.api('/me/permissions', function (response) {
+                    for (var i=0;i<perms.length;i++){ 
+                        if (!response.data[0][perms[i]]) {
+                            return;
+                        }
+                    }
+                    window.location = window.location;
+                });
+            });
+
+            //load_no_comment();
+            initApp("<?php echo isset($accessToken)? $accessToken:''; ?>");
+
+            FB.Canvas.setAutoGrow();
+        };
+
+        // Load the SDK Asynchronously
+        (function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/en_US/all.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
 </script>
 
   </body>

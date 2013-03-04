@@ -40,8 +40,7 @@ function clear_cookie() {
             setcookie($name, '', time()-1000, '/');
         }
     }
-
+    session_destroy();
 }
 
 ?>
-
