@@ -12,10 +12,14 @@ if (file_exists('../development')) $dev = true;
 // This provides access to helper functions defined in 'utils.php'
 require_once('utils.php');
 
-if (!$dev)
+if (!$dev) {
     require_once('sdk/src/facebook.php');
-else
+    $dropBoxKey = 'e2pip5zpoxx1bo2';
+}
+else {
     require_once('../sdk/src/facebook.php');
+    $dropBoxKey = 'd2qg6iuy7tpm4ni';
+}
 
 $facebook = new Facebook(array(
     'appId'  => AppInfo::appID(),

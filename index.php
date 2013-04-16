@@ -61,6 +61,7 @@ if (is_authorized()) {
     <script type="text/javascript" src="javascript/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="javascript/dust-full-0.3.0.min.js"></script>
     <script type="text/javascript" src="javascript/date.format.js"></script>
+<script type="text/javascript" src="https://www.dropbox.com/static/api/1/dropins.js" id="dropboxjs" data-app-key="<?php echo $dropBoxKey; ?>"></script>
 
 <script type="text/javascript">
 function logResponse(response) {
@@ -161,12 +162,33 @@ function load_no_comment() {
     }
 }
 
-function sendmsg(id) {
+function sendmsg(uid, post_id) {
     var getlink = prompt("Nhập link:");
     FB.ui({
         method: 'send',
-        to: id,
+        to: uid,
         link: getlink,
+    });
+    if (getlink) {
+        show_comment_box(post_id);
+        set_comment_box(post_id, getlink); 
+    }
+}
+
+function dropbox(uid, post_id) {
+    var dblink = '';
+    Dropbox.choose({
+        success: function(files) {
+            dblink = files[0].link;
+            FB.ui({
+                method: 'send',
+                to: uid,
+                link: dblink,
+            });
+            show_comment_box(post_id);
+            set_comment_box(post_id, dblink);
+        },
+        cancel:  function() {}
     });
 }
 
@@ -228,6 +250,10 @@ function show_comment_box(post_id) {
     $("#comment_box_"+post_id).show();
 }
 
+function set_comment_box(post_id, value) {
+    $("#comment_box_"+post_id+" textarea").val(value);
+}
+
 function submit_comment(post_id) {
     var content = $("#comment_box_"+post_id+" textarea").val();
     FB.api('/'+post_id+'/comments', 'post', {message: content}, 
@@ -242,7 +268,6 @@ function submit_comment(post_id) {
 }
 
 </script>
-
 
 <!--
 --------------------- UI TEMPLATE ---------------------------------
@@ -259,11 +284,12 @@ function submit_comment(post_id) {
                     <a href="mailto:{email|s}">Gửi qua Email</a>                
                 {/email}
                 <a href="https://www.facebook.com/{owner.uid}" target="_blank">Gửi tin nhắn riêng</a>                
-                <a href="#" onclick="sendmsg('{owner.uid}')">Gửi link trực tiếp</a>
+                <a href="#" onclick="sendmsg('{owner.uid}','{post_id}')">Gửi link trực tiếp</a>
+                <a href="#" onclick="dropbox('{owner.uid}','{post_id}')">Gửi link dropbox</a>
                 <a href="#" onclick="show_comment_box('{post_id}')">Đã gửi ?</a>
                 <span class="comment_box" id="comment_box_{post_id}" style="display:none;">
                     <textarea placeholder="Viết trả lời"></textarea>
-                    <button onclick="submit_comment('{post_id}')">Hoàn thành</button>
+                    <button onclick="submit_comment('{post_id}')">Để lại lời nhắn hoàn thành</button>
                 </span>
             </span>
             </div>
@@ -328,6 +354,11 @@ function submit_comment(post_id) {
             js.src = "//connect.facebook.net/en_US/all.js";
             fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
+
+        $(".dropbox").each(function(){ 
+            this.addEventListener("DbxChooserSuccess", function(e) { alert("Here's the chosen file: " + e.files[0].link)}, false);
+        });
+
 </script>
 
   </body>
