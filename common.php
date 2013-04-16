@@ -1,7 +1,7 @@
 <?php
 require_once('AppInfo.php');
 
-if (file_exists('../development')) $dev = true;
+if (AppInfo::appID() === '212124665595942') $dev = true;
 
 // Enforce https on production
 //if (!$dev && substr(AppInfo::getUrl(), 0, 8) != 'https://' && $_SERVER['REMOTE_ADDR'] != '127.0.0.1') {
