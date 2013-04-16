@@ -11,13 +11,12 @@ if (AppInfo::appID() === '212124665595942') $dev = true;
 
 // This provides access to helper functions defined in 'utils.php'
 require_once('utils.php');
+require_once('sdk/src/facebook.php');
 
 if (!$dev) {
-    require_once('sdk/src/facebook.php');
     $dropBoxKey = 'e2pip5zpoxx1bo2';
 }
 else {
-    require_once('../sdk/src/facebook.php');
     $dropBoxKey = 'd2qg6iuy7tpm4ni';
 }
 
