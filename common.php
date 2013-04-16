@@ -1,7 +1,7 @@
 <?php
 require_once('AppInfo.php');
 
-if (file_exists('../development')) $dev = true;
+if (AppInfo::appID() === '212124665595942') $dev = true;
 
 // Enforce https on production
 //if (!$dev && substr(AppInfo::getUrl(), 0, 8) != 'https://' && $_SERVER['REMOTE_ADDR'] != '127.0.0.1') {
@@ -11,11 +11,14 @@ if (file_exists('../development')) $dev = true;
 
 // This provides access to helper functions defined in 'utils.php'
 require_once('utils.php');
+require_once('sdk/src/facebook.php');
 
-if (!$dev)
-    require_once('sdk/src/facebook.php');
-else
-    require_once('../sdk/src/facebook.php');
+if (!$dev) {
+    $dropBoxKey = 'e2pip5zpoxx1bo2';
+}
+else {
+    $dropBoxKey = 'd2qg6iuy7tpm4ni';
+}
 
 $facebook = new Facebook(array(
     'appId'  => AppInfo::appID(),
